@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatVase - Next-Gen AI Chat Widget for Websites</title>
+    <meta name="description" content="Transform your website with an intelligent, customizable AI chat widget. One line of code, endless possibilities.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        dark: '#0f172a',
+                        accent: '#22d3ee',
+                    },
+                    fontFamily: {
+                        sans: ['Space Grotesk', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow': 'glow 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        glow: {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.5 },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glow {
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #fff 0%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .typing-animation {
+            border-right: 2px solid #6366f1;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #6366f1 }
+        }
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.5;
+            background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, rgba(99,102,241,0) 70%);
+        }
+        .hamburger-bar {
+            display: block;
+            width: 28px;
+            height: 3px;
+            margin: 4px 0;
+            background: #fff;
+            border-radius: 2px;
+            transition: all 0.3s cubic-bezier(.4,2,.6,1);
+        }
+        #hamburger.open .hamburger-bar:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+        #hamburger.open .hamburger-bar:nth-child(2) {
+            opacity: 0;
+        }
+        #hamburger.open .hamburger-bar:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+        #mobile-nav-panel {
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border-left: 1.5px solid rgba(255,255,255,0.08);
+        }
+        .mobile-nav-link {
+            display: block;
+            font-size: 1.2rem;
+            color: #fff;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            transition: background 0.2s, color 0.2s, text-decoration 0.2s;
+            outline: none;
+        }
+        .mobile-nav-link:hover, .mobile-nav-link:focus {
+            background: rgba(99,102,241,0.12);
+            color: #a5b4fc;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="bg-dark text-white font-sans overflow-x-hidden">
+    <!-- Animated Background -->
+    <div class="fixed inset-0 pointer-events-none">
+        <div class="absolute inset-0 bg-gradient-to-br from-dark via-dark to-primary/20"></div>
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style="animation-delay: -3s"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="glass-effect rounded-2xl px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl font-bold text-primary">ChatVase</span>
+                </div>
+                <!-- Hamburger for mobile -->
+                <button id="hamburger" class="md:hidden flex flex-col justify-center items-center w-10 h-10 rounded hover:bg-primary/10 focus:outline-none relative z-50" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav-panel">
+                    <span class="hamburger-bar transition-all"></span>
+                    <span class="hamburger-bar transition-all"></span>
+                    <span class="hamburger-bar transition-all"></span>
+                </button>
+                <nav id="main-nav" class="hidden md:flex gap-8 text-gray-200 font-medium">
+                    <a href="#features" class="hover:text-primary transition">Features</a>
+                    <a href="#how" class="hover:text-primary transition">How It Works</a>
+                    <a href="#pricing" class="hover:text-primary transition">Pricing</a>
+                    <a href="#demo" class="hover:text-primary transition">Demo</a>
+                </nav>
+                <a href="#get-started" class="hidden md:block px-6 py-2 bg-primary rounded-lg font-semibold glow hover:bg-primary/90 transition">Get Started</a>
+            </div>
+            <!-- Mobile nav panel and backdrop -->
+            <div id="mobile-nav-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+            <nav id="mobile-nav-panel" class="fixed top-0 right-0 h-full w-80 max-w-full bg-dark/80 glass-effect shadow-2xl z-50 transform translate-x-full opacity-0 transition-all duration-300 flex flex-col gap-6 p-8 pt-24 focus:outline-none" tabindex="-1" aria-hidden="true">
+                <a href="#features" class="mobile-nav-link">Features</a>
+                <a href="#how" class="mobile-nav-link">How It Works</a>
+                <a href="#pricing" class="mobile-nav-link">Pricing</a>
+                <a href="#demo" class="mobile-nav-link">Demo</a>
+                <a href="#get-started" class="px-6 py-2 bg-primary rounded-lg font-semibold glow hover:bg-primary/90 transition text-center mobile-nav-link">Get Started</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen relative pt-32">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 gradient-text">
+                    Smarter Conversations.<br>One Line of Code.
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-300 mb-8">
+                    ChatVase is the next-gen AI chat widget for your website.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+                    <button class="px-8 py-4 bg-primary hover:bg-primary/90 rounded-lg font-semibold transition-all glow text-lg group">
+                        <span class="flex items-center gap-2">
+                            Get Started Free
+                            <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                            </svg>
+                        </span>
+                    </button>
+                    <button class="px-8 py-4 glass-effect hover:bg-white/10 rounded-lg font-semibold transition-all text-lg">
+                        See Live Demo
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Interactive Widget Preview -->
+            <div class="mt-20 max-w-md mx-auto">
+                <div class="relative rounded-2xl overflow-hidden shadow-2xl" style="background: linear-gradient(135deg, #1e2240 60%, #232a4d 100%);">
+                    <div class="absolute inset-0 pointer-events-none z-0">
+                        <div class="w-full h-full rounded-2xl border-2 border-primary/40 shadow-[0_0_40px_10px_rgba(99,102,241,0.25)] animate-glow"></div>
+                    </div>
+                    <div class="relative z-10 p-6">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-white">ChatVase AI</h3>
+                                <p class="text-xs text-primary/80">Online</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-4">
+                            <!-- Bot message -->
+                            <div class="self-start max-w-[80%]">
+                                <div class="bg-gradient-to-br from-primary/30 to-primary/10 text-white rounded-xl px-4 py-3 shadow-md">
+                                    <span class="font-medium">👋 Hi! How can I help you today?</span>
+                                </div>
+                            </div>
+                            <!-- User message -->
+                            <div class="self-end max-w-[80%]">
+                                <div class="bg-white/10 text-white rounded-xl px-4 py-3 shadow-md border border-white/10">
+                                    Can you help me track my order?
+                                </div>
+                            </div>
+                            <!-- Bot message -->
+                            <div class="self-start max-w-[80%]">
+                                <div class="bg-gradient-to-br from-primary/30 to-primary/10 text-white rounded-xl px-4 py-3 shadow-md">
+                                    <span class="font-medium">Of course! Please provide your order number.</span>
+                                </div>
+                            </div>
+                            <!-- User message -->
+                            <div class="self-end max-w-[80%]">
+                                <div class="bg-white/10 text-white rounded-xl px-4 py-3 shadow-md border border-white/10">
+                                    #12345
+                                </div>
+                            </div>
+                            <!-- Bot message -->
+                            <div class="self-start max-w-[80%]">
+                                <div class="bg-gradient-to-br from-primary/30 to-primary/10 text-white rounded-xl px-4 py-3 shadow-md">
+                                    <span class="font-medium">Thank you! Your order is on its way and should arrive by Friday. 🚚</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 relative">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-4">Powerful Features</h2>
+            <p class="text-xl text-gray-300 text-center mb-16">Everything you need to create an engaging chat experience</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature Cards -->
+                <div class="glass-effect rounded-xl p-6 hover:bg-white/5 transition-all transform hover:scale-105 duration-300">
+                    <div class="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Real AI Chat</h3>
+                    <p class="text-gray-400">Advanced AI that understands context and responds naturally to your visitors.</p>
+                </div>
+
+                <div class="glass-effect rounded-xl p-6 hover:bg-white/5 transition-all transform hover:scale-105 duration-300">
+                    <div class="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Easy Install</h3>
+                    <p class="text-gray-400">Add the widget to your site with just one line of code. No technical skills needed.</p>
+                </div>
+
+                <div class="glass-effect rounded-xl p-6 hover:bg-white/5 transition-all transform hover:scale-105 duration-300">
+                    <div class="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Live Message Forwarding</h3>
+                    <p class="text-gray-400">Get instant notifications and forward messages to your preferred channels.</p>
+                </div>
+
+                <div class="glass-effect rounded-xl p-6 hover:bg-white/5 transition-all transform hover:scale-105 duration-300">
+                    <div class="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Custom UI Themes</h3>
+                    <p class="text-gray-400">Match your brand with fully customizable colors, fonts, and chat behavior.</p>
+                </div>
+
+                <div class="glass-effect rounded-xl p-6 hover:bg-white/5 transition-all transform hover:scale-105 duration-300">
+                    <div class="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">User Analytics</h3>
+                    <p class="text-gray-400">Track conversations, response times, and visitor satisfaction in real-time.</p>
+                </div>
+
+                <div class="glass-effect rounded-xl p-6 hover:bg-white/5 transition-all transform hover:scale-105 duration-300">
+                    <div class="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Mobile-Ready</h3>
+                    <p class="text-gray-400">Perfect experience on all devices, from desktop to mobile.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how" class="py-20 relative">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-4">How It Works</h2>
+            <p class="text-xl text-gray-300 text-center mb-16">Get started in minutes, not days</p>
+            <div class="flex flex-col gap-8 max-w-2xl mx-auto">
+                <div class="glass-effect rounded-xl p-6 text-center relative group">
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                            <span class="text-2xl font-bold text-primary">1</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Copy Script Tag</h3>
+                        <div class="bg-dark/50 rounded-lg p-4 mb-4 text-left font-mono text-sm overflow-x-auto">
+                            <code class="text-primary">&lt;script src=\"chatvase.js\"&gt;&lt;/script&gt;</code>
+                        </div>
+                        <p class="text-gray-400">Get your unique script tag from the dashboard</p>
+                    </div>
+                </div>
+                <div class="glass-effect rounded-xl p-6 text-center relative group">
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                            <span class="text-2xl font-bold text-primary">2</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Customize Settings</h3>
+                        <div class="bg-dark/50 rounded-lg p-4 mb-4 text-left font-mono text-sm overflow-x-auto">
+                            <code class="text-primary">window.ChatVaseSettings = {<br>&nbsp;&nbsp;theme: 'dark',<br>&nbsp;&nbsp;position: 'right'<br>};</code>
+                        </div>
+                        <p class="text-gray-400">Set up your preferences and AI behavior</p>
+                    </div>
+                </div>
+                <div class="glass-effect rounded-xl p-6 text-center relative group">
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                            <span class="text-2xl font-bold text-primary">3</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Go Live</h3>
+                        <div class="bg-dark/50 rounded-lg p-4 mb-4 text-left font-mono text-sm overflow-x-auto">
+                            <code class="text-primary">// Your chat widget is now live!<br>// Start engaging with visitors</code>
+                        </div>
+                        <p class="text-gray-400">Your chat widget is ready to engage visitors</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-20 bg-dark/50 relative">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-4">Trusted by Thousands</h2>
+            <p class="text-xl text-gray-300 text-center mb-16">See what our users are saying about ChatVase</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div class="glass-effect rounded-xl p-6 relative group hover:bg-white/5 transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-4">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Johnson" class="w-12 h-12 rounded-full border-2 border-primary/60">
+                            <div>
+                                <h4 class="font-semibold">Sarah Johnson</h4>
+                                <p class="text-sm text-gray-400">E-commerce Owner</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-300 mb-4">"ChatVase has transformed how we interact with our customers. The AI responses are incredibly natural and helpful. We've seen a 40% increase in customer satisfaction since implementing it."</p>
+                        <div class="flex items-center gap-1">
+                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            <span class="text-sm text-gray-400">5.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-effect rounded-xl p-6 relative group hover:bg-white/5 transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-4">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Mike Chen" class="w-12 h-12 rounded-full border-2 border-primary/60">
+                            <div>
+                                <h4 class="font-semibold">Mike Chen</h4>
+                                <p class="text-sm text-gray-400">Tech Startup Founder</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-300 mb-4">"The one-line integration was a game-changer. We had it up and running in minutes! The customization options are extensive, and the AI responses are spot-on. Highly recommended!"</p>
+                        <div class="flex items-center gap-1">
+                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            <span class="text-sm text-gray-400">5.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-effect rounded-xl p-6 relative group hover:bg-white/5 transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-4">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Emma Davis" class="w-12 h-12 rounded-full border-2 border-primary/60">
+                            <div>
+                                <h4 class="font-semibold">Emma Davis</h4>
+                                <p class="text-sm text-gray-400">Digital Agency Owner</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-300 mb-4">"The real-time message delivery ensures we never miss an important conversation with our visitors. The analytics dashboard gives us valuable insights into customer behavior."</p>
+                        <div class="flex items-center gap-1">
+                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            <span class="text-sm text-gray-400">5.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trust Badges -->
+            <div class="mt-16 flex flex-wrap justify-center items-center gap-8 opacity-75">
+                <img src="https://via.placeholder.com/120x40/1a1a1a/ffffff?text=TechCrunch" alt="TechCrunch" class="h-8">
+                <img src="https://via.placeholder.com/120x40/1a1a1a/ffffff?text=Forbes" alt="Forbes" class="h-8">
+                <img src="https://via.placeholder.com/120x40/1a1a1a/ffffff?text=ProductHunt" alt="ProductHunt" class="h-8">
+                <img src="https://via.placeholder.com/120x40/1a1a1a/ffffff?text=YCombinator" alt="YCombinator" class="h-8">
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="py-20 relative">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-4">Simple Pricing</h2>
+            <p class="text-xl text-gray-300 text-center mb-16">Start free, stay free during our beta period</p>
+            <div class="max-w-md mx-auto">
+                <div class="glass-effect rounded-2xl p-8 relative overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-primary/40 focus-within:scale-105 focus-within:shadow-2xl focus-within:border-primary/40">
+                    <!-- Decorative Elements -->
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="text-center mb-8">
+                            <h3 class="text-3xl font-bold mb-2">Free Forever</h3>
+                            <p class="text-2xl text-primary font-bold mb-2">$0</p>
+                            <p class="text-gray-300">Perfect for getting started</p>
+                        </div>
+                        <div class="space-y-4 mb-8">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-6 h-6 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>Unlimited AI-powered conversations</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <svg class="w-6 h-6 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>Customizable chat widget design</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <svg class="w-6 h-6 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>Real-time message delivery</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <svg class="w-6 h-6 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>Basic analytics dashboard</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <svg class="w-6 h-6 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>Email notifications</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <svg class="w-6 h-6 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>1-line integration code</span>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button class="px-8 py-4 bg-primary hover:bg-primary/90 rounded-lg font-semibold transition-all glow text-lg group">
+                                <span class="flex items-center gap-2">
+                                    Get Started Free
+                                    <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                    </svg>
+                                </span>
+                            </button>
+                            <p class="text-sm text-gray-400 mt-4">No credit card required</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <footer class="py-12 bg-dark/50">
+        <div class="container mx-auto px-4">
+            <div class="glass-effect rounded-2xl p-8 text-center max-w-4xl mx-auto relative overflow-hidden">
+                <!-- Decorative Elements -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+                
+                <div class="relative z-10">
+                    <h3 class="text-3xl md:text-4xl font-bold mb-4">Let AI welcome your visitors before you do</h3>
+                    <p class="text-xl text-gray-300 mb-8">Join thousands of websites already using ChatVase to engage their visitors</p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button class="px-8 py-4 bg-primary hover:bg-primary/90 rounded-lg font-semibold transition-all glow text-lg group">
+                            <span class="flex items-center gap-2">
+                                Copy the Script
+                                <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </span>
+                        </button>
+                        <button class="px-8 py-4 glass-effect hover:bg-white/10 rounded-lg font-semibold transition-all text-lg">
+                            See Docs
+                        </button>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-4">Start Free • No Sign-up Required</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Main Footer -->
+    <footer class="w-full glass-effect border-t border-white/10 py-8 mt-8">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-lg font-bold text-primary">ChatVase</span>
+                <span class="text-gray-400">&copy; 2024. All rights reserved.</span>
+            </div>
+            <div class="flex gap-4">
+                <a href="#" class="text-gray-400 hover:text-primary transition" aria-label="Twitter">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M22.46 6c-.77.35-1.6.58-2.47.69a4.3 4.3 0 001.88-2.37 8.59 8.59 0 01-2.72 1.04 4.28 4.28 0 00-7.29 3.9A12.13 12.13 0 013 4.89a4.28 4.28 0 001.32 5.71c-.7-.02-1.36-.21-1.94-.53v.05a4.28 4.28 0 003.43 4.19c-.33.09-.68.14-1.04.14-.25 0-.5-.02-.74-.07a4.29 4.29 0 004 2.98A8.6 8.6 0 012 19.54a12.13 12.13 0 006.56 1.92c7.88 0 12.2-6.53 12.2-12.2 0-.19 0-.37-.01-.56A8.7 8.7 0 0024 4.59a8.48 8.48 0 01-2.54.7z"/>
+                    </svg>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-primary transition" aria-label="GitHub">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.48 2.87 8.28 6.84 9.63.5.09.68-.22.68-.48 0-.24-.01-.87-.01-1.7-2.78.62-3.37-1.36-3.37-1.36-.45-1.18-1.1-1.5-1.1-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.7 0 0 .84-.28 2.75 1.05A9.36 9.36 0 0112 6.8c.85.004 1.7.12 2.5.35 1.9-1.33 2.74-1.05 2.74-1.05.55 1.4.2 2.44.1 2.7.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.07.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.8 0 .27.18.58.69.48A10.01 10.01 0 0022 12.26C22 6.58 17.52 2 12 2z"/>
+                    </svg>
+                </a>
+            </div>
+            <div class="flex gap-6 text-gray-400 text-sm">
+                <a href="#features" class="hover:text-primary transition">Features</a>
+                <a href="#how" class="hover:text-primary transition">How It Works</a>
+                <a href="#pricing" class="hover:text-primary transition">Pricing</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Add particle effect
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.width = Math.random() * 100 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.top = Math.random() * 100 + 'vh';
+            document.body.appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 3000);
+        }
+
+        setInterval(createParticle, 2000);
+
+        // Hamburger menu logic
+        const hamburger = document.getElementById('hamburger');
+        const navPanel = document.getElementById('mobile-nav-panel');
+        const navBackdrop = document.getElementById('mobile-nav-backdrop');
+        const navLinks = navPanel.querySelectorAll('.mobile-nav-link');
+        let navOpen = false;
+        let lastFocusedElement = null;
+
+        function openNav() {
+            navOpen = true;
+            hamburger.classList.add('open');
+            hamburger.setAttribute('aria-expanded', 'true');
+            navPanel.classList.remove('translate-x-full','opacity-0');
+            navPanel.classList.add('translate-x-0','opacity-100');
+            navPanel.setAttribute('aria-hidden', 'false');
+            navBackdrop.classList.remove('opacity-0','pointer-events-none');
+            navBackdrop.classList.add('opacity-100');
+            navBackdrop.style.pointerEvents = 'auto';
+            lastFocusedElement = document.activeElement;
+            navPanel.focus();
+            // Trap focus
+            document.addEventListener('keydown', trapFocus);
+            document.addEventListener('keydown', escCloseNav);
+        }
+        function closeNav() {
+            navOpen = false;
+            hamburger.classList.remove('open');
+            hamburger.setAttribute('aria-expanded', 'false');
+            navPanel.classList.add('translate-x-full','opacity-0');
+            navPanel.classList.remove('translate-x-0','opacity-100');
+            navPanel.setAttribute('aria-hidden', 'true');
+            navBackdrop.classList.add('opacity-0');
+            navBackdrop.classList.remove('opacity-100');
+            navBackdrop.style.pointerEvents = 'none';
+            if (lastFocusedElement) lastFocusedElement.focus();
+            document.removeEventListener('keydown', trapFocus);
+            document.removeEventListener('keydown', escCloseNav);
+        }
+        hamburger.addEventListener('click', () => {
+            navOpen ? closeNav() : openNav();
+        });
+        navBackdrop.addEventListener('click', closeNav);
+        navLinks.forEach(link => link.addEventListener('click', closeNav));
+        // Focus trap
+        function trapFocus(e) {
+            if (!navOpen) return;
+            const focusable = Array.from(navPanel.querySelectorAll('a,button,[tabindex]:not([tabindex="-1"])'));
+            const first = focusable[0];
+            const last = focusable[focusable.length-1];
+            if (e.key === 'Tab') {
+                if (e.shiftKey) {
+                    if (document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    }
+                } else {
+                    if (document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
+            }
+        }
+        // Esc to close
+        function escCloseNav(e) {
+            if (e.key === 'Escape') closeNav();
+        }
+        // Close nav on resize to md+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768 && navOpen) closeNav();
+        });
+    </script>
+</body>
+</html> 
