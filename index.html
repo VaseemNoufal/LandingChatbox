@@ -7,6 +7,8 @@
     <meta name="description" content="Transform your website with an intelligent, customizable AI chat widget. One line of code, endless possibilities.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -49,7 +51,7 @@
             box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
         }
         .gradient-text {
-            background: linear-gradient(135deg, #fff 0%, #6366f1 100%);
+            background: linear-gradient(90deg, #b0b0b0 0%, #7b61ff 50%, #ff5ecb 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -109,9 +111,161 @@
             color: #a5b4fc;
             text-decoration: underline;
         }
+        body {
+            font-family: 'Space Grotesk', 'sans-serif';
+        }
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .grid-bg::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(to right, rgba(255,255,255,0.12) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255,255,255,0.12) 1px, transparent 1px);
+            background-size: 80px 80px;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .how-card {
+            background: #18181a;
+            border-radius: 2rem;
+            border: 1px solid #232325;
+            padding: 2.5rem 2rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 2rem;
+            position: relative;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 24px 0 rgba(0,0,0,0.12);
+        }
+        .how-card-label {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border-radius: 2rem;
+            padding: 0.25rem 1.5rem 0.25rem 0.25rem;
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
+            position: relative;
+            z-index: 2;
+        }
+        .how-card-label-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background: #232325;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+        .how-card-content {
+            flex: 1;
+        }
+        .how-card-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #e5e5e5;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            text-align: left;
+        }
+        .how-card-desc {
+            color: #b0b0b0;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .how-card-code {
+            background: #232325;
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            font-family: 'Space Grotesk', monospace;
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow-x: auto;
+            text-align: left;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            background: #18181a;
+            color: #fff;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            z-index: 2;
+        }
+        .copy-btn.copied {
+            background: #6366f1;
+            color: #fff;
+            border-color: #6366f1;
+        }
+        .how-card-svg {
+            width: 180px;
+            min-width: 180px;
+            height: 180px;
+            opacity: 0.18;
+            position: absolute;
+            right: 2rem;
+            top: 2rem;
+            z-index: 1;
+            pointer-events: none;
+        }
+        @media (max-width: 900px) {
+            .how-card { flex-direction: column; gap: 1rem; }
+            .how-card-svg { position: static; width: 100%; height: 120px; margin-top: 1rem; }
+        }
+        .how-glow {
+            box-shadow:
+                0 4px 32px 0 rgba(99,102,241,0.14),
+                0 1.5px 8px 0 rgba(0,0,0,0.13),
+                0 0.5px 1.5px 0 rgba(99,102,241,0.10),
+                0 0 0 1px rgba(99,102,241,0.08);
+            transition: box-shadow 0.3s;
+        }
+        .how-glow:hover {
+            box-shadow:
+                0 8px 48px 0 rgba(99,102,241,0.22),
+                0 4px 16px 0 rgba(0,0,0,0.15),
+                0 1px 3px 0 rgba(99,102,241,0.13),
+                0 0 0 1.5px rgba(99,102,241,0.12);
+        }
+        .fade-up-scroll {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.4,0,.2,1);
+            filter: blur(30px);
+        }
+        .fade-up-scroll.visible {
+            opacity: 1;
+            transform: none;
+            filter: blur(0px)
+        }
+        .reveal-headline span {
+            display: inline-block;
+            filter: blur(8px);
+            opacity: 0.2;
+            transition: filter 0.3s, opacity 0.3s;
+        }
     </style>
 </head>
 <body class="bg-dark text-white font-sans overflow-x-hidden">
+    <!-- Grid Background -->
+    <div class="grid-bg"></div>
     <!-- Animated Background -->
     <div class="fixed inset-0 pointer-events-none">
         <div class="absolute inset-0 bg-gradient-to-br from-dark via-dark to-primary/20"></div>
@@ -153,7 +307,7 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="min-h-screen relative pt-32">
+    <section class="min-h-screen relative pt-40">
         <div class="container mx-auto px-4">
             <div class="max-w-4xl mx-auto text-center">
                 <h1 class="text-5xl md:text-7xl font-bold mb-6 gradient-text">
@@ -308,44 +462,61 @@
         <div class="container mx-auto px-4">
             <h2 class="text-4xl font-bold text-center mb-4">How It Works</h2>
             <p class="text-xl text-gray-300 text-center mb-16">Get started in minutes, not days</p>
-            <div class="flex flex-col gap-8 max-w-2xl mx-auto">
-                <div class="glass-effect rounded-xl p-6 text-center relative group">
-                    <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="relative z-10">
-                        <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                            <span class="text-2xl font-bold text-primary">1</span>
+            <div class="mx-auto" style="width:90%;max-width:1100px;">
+                <!-- Card 1 -->
+                <div class="glass-effect how-glow rounded-2xl p-8 flex flex-col md:flex-row items-center md:items-start gap-8 mb-8 overflow-hidden">
+                    <div class="flex-1 w-full">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <span class="font-semibold text-lg text-white">Copy Script Tag</span>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2">Copy Script Tag</h3>
-                        <div class="bg-dark/50 rounded-lg p-4 mb-4 text-left font-mono text-sm overflow-x-auto">
-                            <code class="text-primary">&lt;script src=\"chatvase.js\"&gt;&lt;/script&gt;</code>
+                        <h3 class="text-2xl md:text-3xl font-bold mb-2 text-left">Copy Script Tag</h3>
+                        <p class="text-gray-400 text-lg mb-4 text-left">Get your unique script tag from the dashboard</p>
+                        <div class="bg-dark/50 rounded-lg p-4 mb-4 text-left font-mono text-sm overflow-x-auto relative">
+                            <code class="text-primary" id="code-script">&lt;script src=&quot;chatvase.js&quot;&gt;&lt;/script&gt;</code>
+                            <button class="copy-btn" onclick="copyCode('code-script', this)">Copy</button>
                         </div>
-                        <p class="text-gray-400">Get your unique script tag from the dashboard</p>
                     </div>
                 </div>
-                <div class="glass-effect rounded-xl p-6 text-center relative group">
-                    <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="relative z-10">
-                        <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                            <span class="text-2xl font-bold text-primary">2</span>
+                <!-- Card 2 -->
+                <div class="glass-effect how-glow rounded-2xl p-8 flex flex-col md:flex-row items-center md:items-start gap-8 mb-8 overflow-hidden">
+                    <div class="flex-1 w-full">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                                </svg>
+                            </div>
+                            <span class="font-semibold text-lg text-white">Customize Settings</span>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2">Customize Settings</h3>
-                        <div class="bg-dark/50 rounded-lg p-4 mb-4 text-left font-mono text-sm overflow-x-auto">
-                            <code class="text-primary">window.ChatVaseSettings = {<br>&nbsp;&nbsp;theme: 'dark',<br>&nbsp;&nbsp;position: 'right'<br>};</code>
+                        <h3 class="text-2xl md:text-3xl font-bold mb-2 text-left">Customize Settings</h3>
+                        <p class="text-gray-400 text-lg mb-4 text-left">Set up your preferences and AI behavior</p>
+                        <div class="bg-dark/50 rounded-lg p-4 mb-4 text-left font-mono text-sm overflow-x-auto relative">
+                            <code class="text-primary" id="code-settings">window.ChatVaseSettings = {<br>&nbsp;&nbsp;theme: 'dark',<br>&nbsp;&nbsp;position: 'right'<br>};</code>
+                            <button class="copy-btn" onclick="copyCode('code-settings', this)">Copy</button>
                         </div>
-                        <p class="text-gray-400">Set up your preferences and AI behavior</p>
                     </div>
                 </div>
-                <div class="glass-effect rounded-xl p-6 text-center relative group">
-                    <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="relative z-10">
-                        <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                            <span class="text-2xl font-bold text-primary">3</span>
+                <!-- Card 3 -->
+                <div class="glass-effect how-glow rounded-2xl p-8 flex flex-col md:flex-row items-center md:items-start gap-8 mb-8 overflow-hidden">
+                    <div class="flex-1 w-full">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </div>
+                            <span class="font-semibold text-lg text-white">Go Live</span>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2">Go Live</h3>
-                        <div class="bg-dark/50 rounded-lg p-4 mb-4 text-left font-mono text-sm overflow-x-auto">
-                            <code class="text-primary">// Your chat widget is now live!<br>// Start engaging with visitors</code>
+                        <h3 class="text-2xl md:text-3xl font-bold mb-2 text-left">Go Live</h3>
+                        <p class="text-gray-400 text-lg mb-4 text-left">Your chat widget is ready to engage visitors</p>
+                        <div class="bg-dark/50 rounded-lg p-4 mb-4 text-left font-mono text-sm overflow-x-auto relative">
+                            <code class="text-primary" id="code-live">// Your chat widget is now live!<br>// Start engaging with visitors</code>
                         </div>
-                        <p class="text-gray-400">Your chat widget is ready to engage visitors</p>
                     </div>
                 </div>
             </div>
@@ -417,14 +588,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Trust Badges -->
-            <div class="mt-16 flex flex-wrap justify-center items-center gap-8 opacity-75">
-                <img src="https://via.placeholder.com/120x40/1a1a1a/ffffff?text=TechCrunch" alt="TechCrunch" class="h-8">
-                <img src="https://via.placeholder.com/120x40/1a1a1a/ffffff?text=Forbes" alt="Forbes" class="h-8">
-                <img src="https://via.placeholder.com/120x40/1a1a1a/ffffff?text=ProductHunt" alt="ProductHunt" class="h-8">
-                <img src="https://via.placeholder.com/120x40/1a1a1a/ffffff?text=YCombinator" alt="YCombinator" class="h-8">
             </div>
         </div>
     </section>
@@ -502,18 +665,17 @@
     </section>
 
     <!-- Final CTA -->
-    <footer class="py-12 bg-dark/50">
-        <div class="container mx-auto px-4">
-            <div class="glass-effect rounded-2xl p-8 text-center max-w-4xl mx-auto relative overflow-hidden">
+    <footer class="py-20 bg-dark/50">
+        <div class="mx-auto" style="width:90%;max-width:1100px;">
+            <div class="glass-effect rounded-2xl p-16 text-center max-w-full mx-auto relative overflow-hidden min-h-[420px] flex flex-col justify-center items-center shadow-[0_10px_40px_rgba(0,0,0,0.1)]">
                 <!-- Decorative Elements -->
                 <div class="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                 <div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-                
                 <div class="relative z-10">
-                    <h3 class="text-3xl md:text-4xl font-bold mb-4">Let AI welcome your visitors before you do</h3>
-                    <p class="text-xl text-gray-300 mb-8">Join thousands of websites already using ChatVase to engage their visitors</p>
+                    <h3 class="text-3xl md:text-5xl font-bold mb-6 max-w-2xl mx-auto">Let AI welcome your visitors before you do</h3>
+                    <p class="text-xl text-gray-300 mb-10">Join thousands of websites already using ChatVase to engage their visitors</p>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button class="px-8 py-4 bg-primary hover:bg-primary/90 rounded-lg font-semibold transition-all glow text-lg group">
+                        <button class="px-5 bg-primary hover:bg-primary/90 rounded-lg font-semibold transition-all glow text-lg group">
                             <span class="flex items-center gap-2">
                                 Copy the Script
                                 <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -535,8 +697,7 @@
     <footer class="w-full glass-effect border-t border-white/10 py-8 mt-8">
         <div class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-2">
-                <span class="text-lg font-bold text-primary">ChatVase</span>
-                <span class="text-gray-400">&copy; 2024. All rights reserved.</span>
+                <span class="text-gray-400">&copy; 2025. All rights reserved. Designed and Developed by <br /> <a href="https://www.vaseemnoufal.vercel.app/" class="text-primary hover:text-primary/80 transition" target="_blank">Vaseem Noufal</a></span>
             </div>
             <div class="flex gap-4">
                 <a href="#" class="text-gray-400 hover:text-primary transition" aria-label="Twitter">
@@ -647,6 +808,71 @@
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 768 && navOpen) closeNav();
         });
+
+        function copyCode(id, btn) {
+            const codeEl = document.getElementById(id);
+            let code = codeEl.innerText.replace(/Copy$/, '').trim();
+            navigator.clipboard.writeText(code);
+            btn.classList.add('copied');
+            btn.textContent = 'Copied!';
+            setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.textContent = 'Copy';
+            }, 1200);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    } else {
+                        entry.target.classList.remove('visible');
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            // Animate main sections
+            document.querySelectorAll('section, .how-glow').forEach(el => {
+                el.classList.add('fade-up-scroll');
+                observer.observe(el);
+            });
+
+            // GSAP Scroll-based animation
+            gsap.utils.toArray('.reveal-headline').forEach(headline => {
+                const spans = headline.querySelectorAll('span');
+                gsap.set(spans, { filter: 'blur(8px)', opacity: 0.2 });
+                gsap.to(spans, {
+                    scrollTrigger: {
+                        trigger: headline,
+                        start: 'top 80%',
+                        end: 'bottom 40%',
+                        scrub: 0.5,
+                    },
+                    filter: 'blur(0px)',
+                    opacity: 1,
+                    stagger: {
+                        each: 0.04,
+                        ease: 'power1.inOut',
+                        from: 'start',
+                    },
+                    ease: 'power1.inOut',
+                    duration: 1.2,
+                });
+            });
+        });
     </script>
+    <script>
+        
+      window.ChatboxSettings = {
+        themecolor: "#6366f1",
+        txtcolor: "",
+        welcomemsg: "Made By Vaseem Noufal for Educational Purpose.",
+        position: "right", // or "left"
+        companyInfo: `You are a smart and friendly AI assistant for a company called ChatVase. This chatbot is powered by Vaseem's custom AI widget, built to make websites more interactive, responsive, and helpful — even when the owner is offline. If anything is asked about pricing just say its free when asked about further details about pricing just say i dont know much about it.Always be clear, concise, and helpful, and guide users toward solutions or next steps`,
+      };
+    
+    </script>
+    <script src="https://vaseemschatbox.vercel.app/finale.js"></script>
 </body>
 </html> 
