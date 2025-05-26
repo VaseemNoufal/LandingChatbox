@@ -477,7 +477,7 @@
                         <h3 class="text-2xl md:text-3xl font-bold mb-2 text-left">Copy Script Tag</h3>
                         <p class="text-gray-400 text-lg mb-4 text-left">Get your unique script tag from the dashboard</p>
                         <div class="bg-dark/50 rounded-lg p-4 mb-4 text-left font-mono text-sm overflow-x-auto relative">
-                            <code class="text-primary" id="code-script">&lt;script src=&quot;chatvase.js&quot;&gt;&lt;/script&gt;</code>
+                            <code class="text-primary" id="code-script">&lt;script src=&quot;https://vaseemschatbox.vercel.app/finale.js&quot;&gt;&lt;/script&gt;</code>
                             <button class="copy-btn" onclick="copyCode('code-script', this)">Copy</button>
                         </div>
                     </div>
@@ -496,7 +496,16 @@
                         <h3 class="text-2xl md:text-3xl font-bold mb-2 text-left">Customize Settings</h3>
                         <p class="text-gray-400 text-lg mb-4 text-left">Set up your preferences and AI behavior</p>
                         <div class="bg-dark/50 rounded-lg p-4 mb-4 text-left font-mono text-sm overflow-x-auto relative">
-                            <code class="text-primary" id="code-settings">window.ChatVaseSettings = {<br>&nbsp;&nbsp;theme: 'dark',<br>&nbsp;&nbsp;position: 'right'<br>};</code>
+                            <code class="text-primary" id="code-settings">
+                                window.ChatboxSettings = {<br>
+                                &nbsp;&nbsp;themecolor: "#6366f1",<br>
+                                &nbsp;&nbsp;txtcolor: "",<br>
+                                &nbsp;&nbsp;welcomemsg: "Made By Vaseem Noufal for Educational Purpose.",<br>
+                                &nbsp;&nbsp;position: "right",<br>
+                                &nbsp;&nbsp;companyInfo: "", //Give Your Company Info<br>
+                                };
+                              </code>
+                              
                             <button class="copy-btn" onclick="copyCode('code-settings', this)">Copy</button>
                         </div>
                     </div>
