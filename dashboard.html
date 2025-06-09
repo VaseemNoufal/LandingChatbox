@@ -1,162 +1,3 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-  <title>Dashboard</title>
-  <style>
-    body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f8fafc;
-}
-
-.layout {
-  display: flex;
-}
-
-.sidebar {
-  width: 200px; 
-  background: white;
-  border-right: 1px solid #e5e7eb;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 20px;
-}
-
-
-.sidebar .logo {
-  font-size: 24px;
-  margin-bottom: 40px;
-}
-
-.sidebar nav {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.nav-link {
-  padding: 10px 20px;
-  text-decoration: none;
-  color: #1f2937;
-  transition: background 0.2s;
-  white-space: nowrap;
-}
-
-.nav-link:hover,
-.nav-link.active {
-  background: #f3f4f6;
-}
-
-main {
-  flex: 1;
-  padding: 20px;
-}
-
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 15px 20px;
-  border-bottom: 1px solid #e5e7eb;
-  position: relative;
-}
-
-.user-icon {
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.user-dropdown {
-  position: absolute;
-  top: 60px;
-  right: 20px;
-  background: white;
-  padding: 10px 15px;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  display: none;
-}
-
-.user-dropdown.open {
-  display: block;
-}
-
-.message-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.card {
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  border-left: 4px solid #6366f1;
-}
-
-.card .sender {
-  font-weight: bold;
-  color: #111827;
-}
-
-.card .meta {
-  font-size: 12px;
-  color: #6b7280;
-  margin-top: 4px;
-}
-
-  </style>
-</head>
-<body>
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="logo">🤖</div>
-      <nav>
-        <a href="#" class="nav-link active" onclick="showTab('messages')">📥 Messages</a>
-        <a href="#" class="nav-link" onclick="showTab('embed')">🧩 Embed Chatbox</a>
-      </nav>
-    </aside>
-
-    <main>
-      <header class="topbar">
-        <h1>Dashboard</h1>
-        <div class="user-icon" onclick="toggleUserDropdown()">👤</div>
-        <div class="user-dropdown" id="user-dropdown">Loading...</div>
-      </header>
-
-      <section id="messages" class="tab">
-        <h2>Your Messages</h2>
-        <div id="messages" class="message-list"></div>
-      </section>
-
-      <section id="embed" class="tab" style="display: none;">
-        <h2>Embed Chatbox</h2>
-        <p>Paste this code into your website:</p>
-        <pre>&lt;script src="https://yourcdn.com/chatbox.js"&gt;&lt;/script&gt;</pre>
-      </section>
-    </main>
-  </div>
-
-  <script type="module" src="js/dashboard.js"></script>
-  <script>
-    function showTab(tab) {
-      document.querySelectorAll('.tab').forEach(t => t.style.display = 'none');
-      document.getElementById(tab).style.display = 'block';
-      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-      document.querySelector(`.nav-link[onclick="showTab('${tab}')"]`).classList.add('active');
-    }
-
-    function toggleUserDropdown() {
-      const dropdown = document.getElementById('user-dropdown');
-      dropdown.classList.toggle('open');
-    }
-  </script>
-</body>
-</html> -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -366,6 +207,7 @@ main {
       color: #eee;
       user-select: text;
       transition: background 0.3s;
+      margin-bottom: 10px;
     }
     .card:hover {
       background: #2c2c2c;
@@ -386,6 +228,142 @@ main {
     .tab {
       padding-top: 40px;
     }
+
+    /* 📱 Ultra Responsive Fixes: 1024px → 320px */
+@media (max-width: 1024px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    overflow-x: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 101;
+    height: 60px;
+  }
+
+  .sidebar .logo {
+    font-size: 20px;
+    margin: 0;
+  }
+
+  .sidebar nav {
+    flex-direction: row;
+    gap: 8px;
+    width: auto;
+  }
+
+  .nav-link {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .topbar {
+    left: 0;
+    top: 60px;
+    padding: 10px 16px;
+    height: 50px;
+  }
+
+  main {
+    padding: 115px 10px 20px 10px;
+  }
+
+  .user-dropdown {
+    top: 110px;
+    right: 16px;
+    width: 90%;
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar h1 {
+    font-size: 1.1rem;
+  }
+
+  .user-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .profile-pic {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .profile-name {
+    font-size: 14px;
+  }
+
+  .profile-email {
+    font-size: 12px;
+  }
+
+  .user-dropdown button {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .card {
+    padding: 14px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .nav-link {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .user-dropdown {
+    width: 95%;
+    right: 8px;
+    padding: 12px 16px;
+  }
+
+  .topbar {
+    padding: 8px 12px;
+  }
+
+  .topbar h1 {
+    font-size: 1rem;
+  }
+
+  .card {
+    font-size: 13px;
+    padding: 12px;
+  }
+
+  .profile-name {
+    font-size: 13px;
+  }
+
+  .profile-email {
+    font-size: 11px;
+  }
+
+  .user-dropdown button {
+    font-size: 13px;
+  }
+}
 
   </style>
 </head>
@@ -414,7 +392,7 @@ main {
             </div>
           </div>
           <hr>
-          <button onclick="logout()">Logout</button>
+          <button onclick="logout()" id="logoutbtn">Logout</button>
         </div>
       </header>
 
@@ -428,7 +406,19 @@ main {
       <section id="embed" class="tab" style="display: none;">
         <h2>Embed Chatbox</h2>
         <p>Paste this code into your website:</p>
-        <pre>&lt;script src="https://yourcdn.com/chatbox.js"&gt;&lt;/script&gt;</pre>
+        <pre>&lt;script src="https://vaseemschatbox.vercel.app/finale.js"&gt;&lt;/script&gt;</pre>
+        <h2>If you Want to Customize the Chatbot Just Insert this code "Above" the Chatbot widget code.</h2>
+        <code class="text-primary" id="code-settings">
+          &lt;script&gt;
+          window.ChatboxSettings = {<br>
+          &nbsp;&nbsp;themecolor: "#6366f1",<br>
+          &nbsp;&nbsp;txtcolor: "",<br>
+           &nbsp;&nbsp;welcomemsg: "Made By Vaseem Noufal for Educational Purpose.",<br>
+          &nbsp;&nbsp;position: "right",<br>
+          &nbsp;&nbsp;companyInfo: "", //Give Your Company Info<br>
+          };
+          &lt;/script&gt;
+        </code>
       </section>
     </main>
   </div>
@@ -465,64 +455,6 @@ main {
         toggleUserDropdown();
       }
     });
-
-    // Simulated fetch profile data from supabase or backend
-    async function fetchUserProfile() {
-      // Replace this with your actual supabase fetch logic
-      // Example mock data:
-      const userData = {
-        name: 'Vaseem Noufal',
-        email: 'vaseem@example.com',
-      };
-
-      document.getElementById('profile-name').textContent = userData.name;
-      document.getElementById('profile-email').textContent = userData.email;
-
-      // Profile pic first letter uppercase
-      document.getElementById('profile-pic').textContent = userData.name.charAt(0).toUpperCase();
-    }
-
-    fetchUserProfile();
-
-    // Logout example (replace with actual logic)
-    function logout() {
-      alert('Logged out!');
-      // Add your logout logic here
-    }
-
-    // Example: Load messages dynamically (replace with your actual messages loading)
-    function loadMessages() {
-      const messagesDiv = document.getElementById('messages');
-      // Clear existing messages
-      messagesDiv.innerHTML = '';
-
-      // Example messages data
-      
-
-      messages.forEach(msg => {
-        const card = document.createElement('div');
-        card.className = 'card';
-
-        const sender = document.createElement('div');
-        sender.className = 'sender';
-        sender.textContent = msg.sender;
-
-        const content = document.createElement('div');
-        content.textContent = msg.content;
-
-        const meta = document.createElement('div');
-        meta.className = 'meta';
-        meta.textContent = msg.timestamp;
-
-        card.appendChild(sender);
-        card.appendChild(content);
-        card.appendChild(meta);
-
-        messagesDiv.appendChild(card);
-      });
-    }
-
-    loadMessages();
   </script>
 </body>
 </html>
