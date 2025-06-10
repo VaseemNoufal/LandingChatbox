@@ -124,6 +124,6 @@ let hu = document.getElementById("logoutbtn");
         return
       }
       // Redirect to login page after successful logout
-      window.location.href = '/login.html' // Change path if needed
+      window.location.href = '../login.html' // Change path if needed
   }
 )
